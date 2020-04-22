@@ -1,7 +1,5 @@
 #!/usr/bin/env bashio
 set -e
-CLOUDFLARE_CONF=/data/cloudflare.conf
-
 DOMAIN=$(bashio::config 'domain')
 KEYFILE=$(bashio::config 'keyfile')
 CERTFILE=$(bashio::config 'certfile')
