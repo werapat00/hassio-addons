@@ -1,97 +1,91 @@
-# Home Assistant Addons: The official repository
+# Home Assistant Add-on: NGINX Home Assistant SSL proxy
 
-[![Build Status](https://dev.azure.com/home-assistant/Hass.io/_apis/build/status/addons?branchName=master)](https://dev.azure.com/home-assistant/Hass.io/_build/latest?definitionId=7&branchName=master)
+Sets up an SSL proxy with NGINX and redirects traffic from port 80 to 443.
 
-Add-ons for Home Assistant, allow you to extend the functionality
-around your Home Assistant setup. These add-on can consist of an application
-that Home Assistant can integrate with (e.g., a MQTT broker or database server)
-or allow access to your Home Assistant configuration (e.g., via Samba or using
-the Configurator).
+![Supports aarch64 Architecture][aarch64-shield] ![Supports amd64 Architecture][amd64-shield] ![Supports armhf Architecture][armhf-shield] ![Supports armv7 Architecture][armv7-shield] ![Supports i386 Architecture][i386-shield]
 
-Add-ons can be installed and configured via the Home Assistant frontend on
-systems that have installed Home Assistant.
+## About
 
-## Add-ons provided by this repository
+Sets up an SSL proxy with NGINX web server. It is typically used to forward SSL internet traffic while allowing unencrypted local traffic to/from a Home Assistant instance.
 
-- **[Almond](/almond/README.md)**
+Make sure you have generated a certificate before you start this add-on. The [Duck DNS](https://github.com/home-assistant/hassio-addons/tree/master/duckdns) add-on can generate a Let's Encrypt certificate that can be used by this add-on.
 
-    Almond For Home Servers.
+## Installation
 
-- **[CEC Scanner](/cec_scan/README.md)**
+Follow these steps to get the add-on installed on your system:
 
-    Scan & discover HDMI CEC devices and their addresses.
+1. Navigate in your Home Assistant frontend to **Supervisor** -> **Add-on Store**.
+2. Find the "NGINX Home Assistant SSL proxy" add-on and click it.
+3. Click on the "INSTALL" button.
 
-- **[Check Home Assistant configuration](/check_config/README.md)**
+## How to use
 
-    Check your current configuration against any Home Assistant version.
+The NGINX Proxy add-on is commonly used in conjunction with the [Duck DNS](https://github.com/home-assistant/hassio-addons/tree/master/duckdns) add-on to set up secure remote access to your Home Assistant instance. The following instructions covers this scenario.
 
-- **[deCONZ](/deconz/README.md)**
+1. The certificate to your registered domain should already be created via the [Duck DNS](https://github.com/home-assistant/hassio-addons/tree/master/duckdns) add-on or another method. Make sure that the certificate files exist in the `/ssl` directory.
+2. In the `configuration.yaml` file, some options in the `http:` section are no longer necessary for this scenario, and should be commented out or removed:
+    - `ssl_certificate`
+    - `ssl_key`
+    - `server_port`
+3. Change the `domain` option to the domain name you registered (from DuckDNS or any other domain you control).
+4. Leave all other options as-is.
+5. Save configuration.
+6. Start the add-on.
+7. Have some patience and wait a couple of minutes.
+8. Check the add-on log output to see the result.
 
-    Control a Zigbee network using ConBee or RaspBee hardware by Dresden Elektronik.
+## Configuration
 
-- **[DHCP server](/dhcp_server/README.md)**
+Add-on configuration:
 
-    A simple DHCP server.
+```yaml
+domain: home.example.com
+certfile: fullchain.pem
+keyfile: privkey.pem
+hsts: "max-age=31536000; includeSubDomains"
+customize:
+  active: false
+  default: "nginx_proxy_default*.conf"
+  servers: "nginx_proxy/*.conf"
+cloudflare: false
+```
 
-- **[Dnsmasq](/dnsmasq/README.md)**
+### Option: `domain` (required)
 
-    A simple DNS server.
+The domain name to use for the proxy.
 
-- **[Duck DNS](/duckdns/README.md)**
+### Option: `certfile` (required)
 
-    Automatically update your Duck DNS IP address with integrated HTTPS support via Let's Encrypt.
+The certificate file to use in the `/ssl` directory. Keep filename as-is if you used default settings to create the certificate with the [Duck DNS](https://github.com/home-assistant/hassio-addons/tree/master/duckdns) add-on.
 
-- **[File editor](/configurator/README.md)**
+### Option: `keyfile` (required)
 
-    Simple browser-based file editor for Home Assistant.
+Private key file to use in the `/ssl` directory.
 
-- **[Git pull](/git_pull/README.md)**
+### Option: `hsts` (required)
 
-    Load and update configuration files for Home Assistant from a Git repository.
+Value for the [`Strict-Transport-Security`][hsts] HTTP header to send. If empty, the header is not sent.
 
-- **[Google Assistant SDK](/google_assistant/README.md)**
+### Option `customize.active` (required)
 
-    A virtual personal assistant developed by Google.
+If true, additional NGINX configuration files for the default server and additional servers are read from files in the `/share` directory specified by the `default` and `servers` variables.
 
-- **[Hey Ada!](/ada/README.md)**
+### Option `customize.default` (required)
 
-    Voice assistant powered by Home Assistant.
+The filename of the NGINX configuration for the default server, found in the `/share` directory.
 
-- **[HomeMatic](/homematic/README.md)**
+### Option `customize.servers` (required)
 
-    HomeMatic central based on OCCU.
+The filename(s) of the NGINX configuration for the additional servers, found in the `/share` directory.
 
-- **[Let's Encrypt](/letsencrypt/README.md)**
+### Option `cloudflare` (optional)
 
-    Manage an create certificates from Let's Encrypt.
+If enabled, configure Nginx with a list of IP addresses directly from Cloudflare that will be used for `set_real_ip_from` directive Nginx config.
+This is so the `ip_ban_enabled` feature can be used and work correctly in /config/customize.yaml.
 
-- **[MariaDB](/mariadb/README.md)**
+## Known issues and limitations
 
-    MariaDB database for Home Assistant.
-
-- **[Mosquitto broker](/mosquitto/README.md)**
-
-    An Open Source MQTT broker.
-
-- **[NGINX Home Assistant SSL proxy](/nginx_proxy/README.md)**
-
-    Sets up an SSL proxy with NGINX and redirects traffic from port 80 to 443.
-
-- **[RPC Shutdown](/rpc_shutdown/README.md)**
-
-    Shutdown Windows machines remotely.
-
-- **[Samba share](/samba/README.md)**
-
-    Expose Home Assistant folders with SMB/CIFS.
-
-- **[SSH server](/ssh/README.md)**
-
-    Allow logging in remotely to Home Assistant using SSH.
-
-- **[TellStick](/tellstick/README.md)**
-
-    TellStick and TellStick Duo service.
+- By default, port 80 is disabled in the add-on configuration in case the port is needed for other components or add-ons like `emulated_hue`.
 
 ## Support
 
@@ -105,16 +99,14 @@ You have several options to get them answered:
 
 In case you've found a bug, please [open an issue on our GitHub][issue].
 
-## Developing your own add-ons
-
-In case you are interested in developing your own add-on, this
-repository can be a great source of inspiration. For more information
-about developing an add-on, please see our
-[documentation for developers][dev-docs].
-
+[aarch64-shield]: https://img.shields.io/badge/aarch64-yes-green.svg
+[amd64-shield]: https://img.shields.io/badge/amd64-yes-green.svg
+[armhf-shield]: https://img.shields.io/badge/armhf-yes-green.svg
+[armv7-shield]: https://img.shields.io/badge/armv7-yes-green.svg
 [discord]: https://discord.gg/c5DvZ4e
 [forum]: https://community.home-assistant.io
-[i386-shield]: https://img.shields.io/badge/i386-no-red.svg
+[hsts]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
+[i386-shield]: https://img.shields.io/badge/i386-yes-green.svg
 [issue]: https://github.com/home-assistant/hassio-addons/issues
 [reddit]: https://reddit.com/r/homeassistant
-[dev-docs]: https://developers.home-assistant.io/docs/en/hassio_addon_index.html
+[repository]: https://github.com/hassio-addons/repository
