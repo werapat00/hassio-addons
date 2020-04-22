@@ -1,6 +1,6 @@
 {
   "name": "Custom NGINX Home Assistant SSL proxy",
-  "version": "1.0",
+  "version": "3.5",
   "slug": "nginx_proxy",
   "description": "An SSL/TLS proxy",
   "url": "https://github.com/werapat00/hassio-addons",
@@ -13,7 +13,7 @@
   },
   "map": ["ssl", "share"],
   "options": {
-    "domain": null,
+    "domain": "10.0.20.1",
     "certfile": "10.0.20.1.chain.pem",
     "keyfile": "10.0.20.1.pem",
     "hsts": "max-age=31536000; includeSubDomains"
