@@ -3,26 +3,39 @@
   "version": "3.0",
   "slug": "nginx_proxy",
   "description": "An SSL/TLS proxy",
-  "url": "https://github.com/werapat00/hassio-addons",
+  "url": "https://github.com/home-assistant/hassio-addons/tree/master/nginx_proxy",
   "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
   "startup": "application",
   "boot": "auto",
   "ports": {
     "80/tcp": null,
-    "443/tcp": 1443
+    "443/tcp": 443,
+    "1443/tcp": 1443
   },
   "map": ["ssl", "share"],
   "options": {
-    "domain": "10.0.20.1",
-    "certfile": "10.0.20.1.chain.pem",
-    "keyfile": "10.0.20.1.pem",
-    "hsts": "max-age=31536000; includeSubDomains"
+    "domain": null,
+    "certfile": "fullchain.pem",
+    "keyfile": "privkey.pem",
+    "hsts": "max-age=31536000; includeSubDomains",
+    "cloudflare": false,
+    "customize": {
+      "active": false,
+      "default": "nginx_proxy_default*.conf",
+      "servers": "nginx_proxy/*.conf"
+    }
   },
   "schema": {
     "domain": "str",
     "certfile": "str",
     "keyfile": "str",
-    "hsts": "str"
+    "hsts": "str",
+    "cloudflare": "bool",
+    "customize": {
+      "active": "bool",
+      "default": "str",
+      "servers": "str"
+    }
   },
   "image": "homeassistant/{arch}-addon-nginx_proxy"
 }
